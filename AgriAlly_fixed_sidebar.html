@@ -1,0 +1,1056 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f2318">
+<title>AgriAlly — Smart Farming Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#0f2318;--forest2:#1a3828;--green:#227a4a;--green2:#2d9e60;
+  --lime:#c8f04a;--lime2:#d9f772;
+  --cream:#f4f6f1;--paper:#ffffff;
+  --muted:#6b7b72;--line:#e2e8df;
+  --orange:#e8893a;--orange-lite:#fff4e8;
+  --red:#d04545;--red-lite:#fff0f0;
+  --blue:#2563b0;--blue-lite:#eff6ff;
+  --purple:#7c3aed;--purple-lite:#f5f0ff;
+  --teal:#0d8a7a;--teal-lite:#edfaf7;
+  --amber:#d97706;--amber-lite:#fffbeb;
+  --shadow:0 4px 24px rgba(15,35,24,.08);
+  --shadow-md:0 8px 32px rgba(15,35,24,.12);
+  --radius:16px;--radius-sm:10px;--radius-lg:24px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--cream);color:var(--forest);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6}
+button,input,select{font:inherit;cursor:pointer}
+a{color:var(--green);text-decoration:none;font-weight:600}
+a:hover{text-decoration:underline}
+
+/* ── SHELL ── */
+.shell{display:grid;grid-template-columns:260px 1fr;min-height:100vh;max-width:none;margin:0}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  background:var(--forest);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  padding:0;scrollbar-width:thin;scrollbar-color:#ffffff20 transparent;
+}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:#ffffff20;border-radius:4px}
+
+.brand{
+  display:flex;align-items:center;gap:12px;
+  padding:24px 20px 20px;
+  border-bottom:1px solid #ffffff12;
+}
+.brand-mark{
+  width:40px;height:40px;border-radius:12px;
+  background:linear-gradient(135deg,var(--lime),#8ecf2a);
+  display:grid;place-items:center;font-size:20px;flex-shrink:0;
+}
+.brand-name{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px}
+.brand-sub{font-size:10px;color:#8fb09a;font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-top:1px}
+
+/* nav groups */
+.nav-group{padding:16px 12px 8px}
+.nav-label{
+  font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:#5a7a68;padding:0 8px;margin-bottom:6px;display:block;
+}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{
+  background:transparent;border:none;color:#b0c8b8;
+  text-align:left;padding:9px 12px;border-radius:var(--radius-sm);
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:500;transition:.15s;width:100%;
+}
+.nav button:hover{background:#ffffff10;color:#fff}
+.nav button.active{background:linear-gradient(90deg,#ffffff18,#ffffff0a);color:#fff;font-weight:600}
+.nav button.active::before{
+  content:'';width:3px;height:20px;background:var(--lime);
+  border-radius:2px;margin-left:-4px;margin-right:6px;flex-shrink:0;
+}
+.nav .ico{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+
+/* colored dot per group */
+.nav-group.core .nav button.active{background:linear-gradient(90deg,rgba(34,122,74,.25),transparent)}
+.nav-group.advanced .nav button.active{background:linear-gradient(90deg,rgba(37,99,176,.2),transparent)}
+.nav-group.records-group .nav button.active{background:linear-gradient(90deg,rgba(124,58,237,.2),transparent)}
+
+.sidebar-footer{
+  margin-top:auto;padding:16px 20px;
+  border-top:1px solid #ffffff10;
+}
+.sidebar-footer p{font-size:11px;color:#5a7a68;line-height:1.5}
+.sidebar-footer strong{color:#8fb09a;display:block;margin-bottom:4px}
+
+/* ── MAIN ── */
+.main{min-width:0;padding:28px clamp(20px,3vw,44px) 60px;background:var(--cream)}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--line);
+}
+.crumb-wrap .crumb{font-size:12px;color:var(--muted);margin-bottom:2px}
+.crumb-wrap .page-title{font-size:20px;font-weight:800;letter-spacing:-.5px;color:var(--forest)}
+.top-actions{display:flex;align-items:center;gap:10px}
+.lang-select{
+  border:1.5px solid var(--line);background:var(--paper);
+  border-radius:var(--radius-sm);padding:8px 12px;color:var(--forest);
+  font-size:13px;font-weight:500;
+}
+.user-avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--lime),var(--green2));
+  display:grid;place-items:center;font-size:18px;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(34,122,74,.3);
+}
+
+/* ── HERO ── */
+.hero{
+  border-radius:var(--radius-lg);
+  background:linear-gradient(135deg,var(--forest) 0%,var(--forest2) 50%,#1f4a32 100%);
+  color:white;padding:40px 44px;position:relative;overflow:hidden;
+  display:grid;grid-template-columns:1.3fr .7fr;gap:28px;margin-bottom:28px;
+}
+.hero::before{
+  content:'';position:absolute;
+  width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(200,240,74,.08),transparent 70%);
+  right:-100px;top:-100px;
+}
+.hero::after{
+  content:'';position:absolute;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(34,122,74,.15),transparent 70%);
+  left:30%;bottom:-50px;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(200,240,74,.15);border:1px solid rgba(200,240,74,.25);
+  color:var(--lime);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;margin-bottom:16px;
+}
+.hero h1{font-size:clamp(26px,3.5vw,42px);letter-spacing:-1.5px;line-height:1.1;margin-bottom:12px;font-weight:900}
+.hero h1 span{color:var(--lime)}
+.hero p{color:#c0d4c8;font-size:14px;margin-bottom:24px;max-width:480px;line-height:1.7}
+.hero-art{display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hero-stat{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:16px;text-align:center;
+}
+.hero-stat .hs-val{font-size:22px;font-weight:900;color:var(--lime);letter-spacing:-1px;display:block}
+.hero-stat .hs-label{font-size:10px;color:#8fb09a;margin-top:2px;font-weight:500}
+
+/* ── BUTTONS ── */
+.btn{
+  border:none;border-radius:var(--radius-sm);padding:10px 18px;font-weight:700;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-size:13px;transition:.15s;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--lime);color:var(--forest)}
+.btn-dark{background:var(--forest);color:white}
+.btn-dark:hover{background:var(--forest2)}
+.btn-outline{background:transparent;border:1.5px solid var(--line);color:var(--forest)}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.btn-sm{padding:7px 14px;font-size:12px}
+
+/* ── METRICS ── */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.metric{
+  background:var(--paper);border-radius:var(--radius);
+  padding:20px;box-shadow:var(--shadow);
+  border:1.5px solid var(--line);position:relative;overflow:hidden;
+}
+.metric::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
+.metric.m-blue::before{background:linear-gradient(90deg,var(--blue),#60a5fa)}
+.metric.m-green::before{background:linear-gradient(90deg,var(--green),var(--lime))}
+.metric.m-orange::before{background:linear-gradient(90deg,var(--orange),#fbbf24)}
+.metric.m-purple::before{background:linear-gradient(90deg,var(--purple),#a78bfa)}
+.metric.m-teal::before{background:linear-gradient(90deg,var(--teal),#2dd4bf)}
+.metric.m-red::before{background:linear-gradient(90deg,var(--red),#f87171)}
+.metric-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.metric-label{font-size:11.5px;font-weight:600;color:var(--muted)}
+.metric-icon{
+  width:32px;height:32px;border-radius:8px;
+  display:grid;place-items:center;font-size:15px;flex-shrink:0;
+}
+.metric.m-blue .metric-icon{background:var(--blue-lite);color:var(--blue)}
+.metric.m-green .metric-icon{background:#eafaf0;color:var(--green)}
+.metric.m-orange .metric-icon{background:var(--orange-lite);color:var(--orange)}
+.metric.m-purple .metric-icon{background:var(--purple-lite);color:var(--purple)}
+.metric.m-teal .metric-icon{background:var(--teal-lite);color:var(--teal)}
+.metric.m-red .metric-icon{background:var(--red-lite);color:var(--red)}
+.metric strong{font-size:26px;font-weight:900;letter-spacing:-1px;color:var(--forest);display:block;margin-bottom:2px}
+.metric small{font-size:11px;color:var(--muted)}
+
+/* ── SECTION HEADER ── */
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:28px 0 16px}
+.section-head h2{font-size:20px;font-weight:800;letter-spacing:-.5px;margin:0}
+.section-head p{font-size:13px;color:var(--muted);margin:3px 0 0}
+.sh-left h2{margin:0}
+
+/* ── TAG / BADGE ── */
+.tag{
+  display:inline-flex;align-items:center;gap:5px;
+  border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;
+  background:#eafaf0;color:var(--green);border:1px solid #c3ecd4;
+}
+.tag.warn{background:var(--orange-lite);color:var(--orange);border-color:#fcd9aa}
+.tag.blue{background:var(--blue-lite);color:var(--blue);border-color:#bfdbfe}
+.tag.purple{background:var(--purple-lite);color:var(--purple);border-color:#ddd6fe}
+.tag.red{background:var(--red-lite);color:var(--red);border-color:#fecaca}
+
+/* ── PANEL ── */
+.panel{
+  background:var(--paper);border:1.5px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:24px;min-width:0;
+}
+.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
+.panel h3{font-size:16px;font-weight:700;letter-spacing:-.3px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:12px;margin:0;line-height:1.5}
+
+/* ── FEATURE CARDS ── */
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.feature-card{
+  background:var(--paper);border:1.5px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:20px;transition:.2s;cursor:pointer;position:relative;overflow:hidden;
+}
+.feature-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--green)}
+.feature-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--green),var(--lime));
+  opacity:0;transition:.2s;
+}
+.feature-card:hover::after{opacity:1}
+.feature-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:grid;place-items:center;font-size:22px;margin-bottom:14px;
+}
+.fi-green{background:#eafaf0}
+.fi-blue{background:var(--blue-lite)}
+.fi-orange{background:var(--orange-lite)}
+.fi-purple{background:var(--purple-lite)}
+.fi-teal{background:var(--teal-lite)}
+.fi-red{background:var(--red-lite)}
+.fi-amber{background:var(--amber-lite)}
+.feature-card h3{font-size:14px;font-weight:700;margin:0 0 6px;letter-spacing:-.2px}
+.feature-card p{font-size:12px;color:var(--muted);margin:0 0 14px;line-height:1.6}
+.text-btn{background:none;border:none;color:var(--green);font-weight:700;font-size:12px;padding:0;display:inline-flex;align-items:center;gap:4px}
+.text-btn:hover{color:var(--green2)}
+
+/* ── GRID ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.two-col{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
+
+/* ── FORM ELEMENTS ── */
+.field{display:grid;gap:6px;margin:14px 0}
+.field label{font-size:12px;font-weight:700;color:#405747;letter-spacing:.2px}
+.field input,.field select{
+  width:100%;border:1.5px solid var(--line);background:var(--paper);
+  border-radius:var(--radius-sm);padding:10px 12px;color:var(--forest);
+  font-size:13px;transition:.15s;
+}
+.field input:focus,.field select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(34,122,74,.1)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1;min-width:120px}
+
+/* ── DROPZONE ── */
+.dropzone{
+  border:2px dashed #c3dcc9;background:#f7fcf8;border-radius:14px;
+  min-height:180px;padding:24px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;gap:8px;position:relative;overflow:hidden;transition:.2s;
+}
+.dropzone:hover{border-color:var(--green);background:#edfaf2}
+.dropzone .dz-icon{font-size:36px}
+.dropzone strong{font-size:14px;font-weight:700}
+.dropzone span{font-size:12px;color:var(--muted)}
+.dropzone img{max-height:160px;max-width:100%;object-fit:contain;border-radius:10px}
+.dropzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* ── RESULT BOX ── */
+.result{
+  display:none;margin-top:16px;border-radius:14px;padding:18px;
+  background:#f0faf4;border:1.5px solid #c3ecd4;
+}
+.result.show{display:block}
+.result h4{margin:0 0 8px;font-size:15px;font-weight:700}
+.result p{margin:5px 0;color:#3a5c45;font-size:13px;line-height:1.6}
+.big-number{font-size:32px;font-weight:900;letter-spacing:-1.5px;color:var(--forest)}
+
+/* ── PROGRESS ── */
+.progress{height:8px;border-radius:99px;background:#e2e8df;overflow:hidden;margin:10px 0}
+.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--lime));border-radius:99px;width:0;transition:width .5s ease}
+
+/* ── NOTICE ── */
+.notice{
+  font-size:12px;color:var(--muted);background:#f9f9f6;
+  padding:12px 14px;border-radius:var(--radius-sm);margin-top:14px;
+  border-left:3px solid var(--line);line-height:1.6;
+}
+
+/* ── WATER RESULT ── */
+.water-result{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.water-result>div{background:#f0faf4;border-radius:10px;padding:14px;border:1px solid #c3ecd4}
+.water-result small{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}
+.water-result strong{font-size:22px;font-weight:800}
+
+/* ── ALERT LIST ── */
+.alert-list{display:grid;gap:10px}
+.alert{
+  display:flex;gap:12px;padding:14px;
+  border:1.5px solid var(--line);border-radius:12px;
+  background:var(--paper);transition:.15s;
+}
+.alert:hover{border-color:#c3ecd4}
+.alert-icon{
+  width:38px;height:38px;flex-shrink:0;border-radius:10px;
+  display:grid;place-items:center;font-size:17px;
+  background:var(--orange-lite);
+}
+.alert-icon.green{background:#eafaf0}
+.alert-icon.blue{background:var(--blue-lite)}
+.alert-icon.red{background:var(--red-lite)}
+.alert-icon.purple{background:var(--purple-lite)}
+.alert b{display:block;font-size:13px;font-weight:700;margin-bottom:2px}
+.alert small{color:var(--muted);font-size:11px;display:block;margin-bottom:4px}
+.alert p{font-size:12px;color:#536558;margin:0;line-height:1.5}
+
+/* ── CHECKLIST ── */
+.checklist{display:grid;gap:10px}
+.checklist label{
+  display:flex;gap:10px;font-size:13px;color:#526457;
+  padding:10px 14px;border-radius:var(--radius-sm);
+  border:1.5px solid var(--line);background:var(--paper);
+  cursor:pointer;transition:.15s;
+}
+.checklist label:hover{border-color:var(--green);background:#f0faf4}
+.checklist input{accent-color:var(--green);margin-top:2px}
+
+/* ── MAP ── */
+.mapbox{
+  background:linear-gradient(135deg,#d4edc4,#e8f5d8);
+  border-radius:14px;min-height:200px;position:relative;overflow:hidden;padding:18px;
+}
+.mapdot{position:absolute;border-radius:50%;width:14px;height:14px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.maplegend{
+  position:absolute;bottom:12px;left:12px;
+  background:rgba(255,255,255,.9);border-radius:8px;padding:7px 10px;
+  font-size:11px;font-weight:600;backdrop-filter:blur(4px);
+}
+.map-caption{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
+
+/* ── SCHEME ── */
+.scheme{padding:16px 0;border-bottom:1px solid var(--line)}
+.scheme:last-child{border-bottom:none}
+.scheme strong{display:block;font-size:13px;font-weight:700;margin-bottom:4px}
+.scheme p{margin:0 0 8px;color:var(--muted);font-size:12px;line-height:1.5}
+.scheme-pill{
+  display:inline-block;background:#eafaf0;color:var(--green);
+  padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;
+}
+
+/* ── VOICE BOX ── */
+.voice-box{background:#f0faf4;border-radius:14px;padding:18px;border:1px solid #c3ecd4}
+.voice-box p{font-size:15px;line-height:1.8;font-family:'Noto Sans Devanagari',sans-serif}
+
+/* ── MINI CHART ── */
+.mini-chart{display:flex;align-items:flex-end;gap:8px;height:90px;margin-top:16px;padding:0 4px}
+.bar{flex:1;background:linear-gradient(180deg,var(--green2),var(--green));border-radius:6px 6px 2px 2px;position:relative;min-width:10px;opacity:.8;transition:.2s}
+.bar:hover{opacity:1}
+.bar span{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);white-space:nowrap}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--forest);color:white;
+  padding:12px 18px;border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.2);
+  display:none;z-index:1000;font-size:13px;font-weight:600;
+  animation:slideUp .2s ease;
+}
+.toast.show{display:block}
+@keyframes slideUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ── PAGES ── */
+.page{display:none}.page.active{display:block}
+
+/* ── PAGE HEADER STRIPS ── */
+.page-hero{
+  border-radius:var(--radius);padding:24px 28px;
+  margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;
+}
+.ph-green{background:linear-gradient(135deg,#eafaf0,#d4f5e3);border:1.5px solid #c3ecd4}
+.ph-blue{background:linear-gradient(135deg,var(--blue-lite),#dbeafe);border:1.5px solid #bfdbfe}
+.ph-orange{background:linear-gradient(135deg,var(--orange-lite),#fde8cc);border:1.5px solid #fcd9aa}
+.ph-purple{background:linear-gradient(135deg,var(--purple-lite),#ede9fe);border:1.5px solid #ddd6fe}
+.ph-teal{background:linear-gradient(135deg,var(--teal-lite),#ccfbf1);border:1.5px solid #99f6e4}
+.ph-red{background:linear-gradient(135deg,var(--red-lite),#fee2e2);border:1.5px solid #fecaca}
+.ph-amber{background:linear-gradient(135deg,var(--amber-lite),#fef3c7);border:1.5px solid #fde68a}
+.page-hero h2{font-size:22px;font-weight:800;letter-spacing:-.5px;margin:0 0 4px}
+.page-hero p{font-size:13px;color:var(--muted);margin:0}
+.ph-icon{font-size:40px;opacity:.7}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;color:var(--muted);font-size:11px;
+  margin-top:48px;padding-top:24px;border-top:1px solid var(--line);
+  line-height:1.8;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .shell{grid-template-columns:72px 1fr}
+  .brand-name,.brand-sub,.nav-label,.nav button .navtext,.sidebar-footer{display:none}
+  .brand{justify-content:center;padding:16px 10px}
+  .nav-group{padding:8px 6px}
+  .nav button{justify-content:center;padding:12px 8px;border-radius:8px}
+  .nav button.active::before{display:none}
+  .nav .ico{width:auto}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .feature-grid{grid-template-columns:repeat(2,1fr)}
+  .hero{grid-template-columns:1fr;padding:28px 24px}
+  .hero-art{display:none}
+}
+@media(max-width:680px){
+  .shell{display:block}
+  .sidebar{position:sticky;top:0;height:auto;overflow-x:auto;overflow-y:visible;z-index:10;padding:8px}
+  .brand{display:none}
+  .nav-group{display:inline-flex;padding:4px}
+  .nav{flex-direction:row}
+  .nav button{padding:8px 10px;flex-direction:column;gap:2px;font-size:9px;min-width:52px}
+  .nav button .navtext{display:block;font-size:9px}
+  .nav-label,.sidebar-footer{display:none}
+  .main{padding:16px 14px 40px}
+  .metrics{grid-template-columns:repeat(2,1fr);gap:10px}
+  .grid2,.two-col{grid-template-columns:1fr}
+  .feature-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .hero{padding:22px 20px;margin-bottom:20px}
+  .water-result{grid-template-columns:1fr 1fr}
+  .topbar{margin-bottom:16px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark">🌾</div>
+    <div>
+      <div class="brand-name">AgriAlly</div>
+      <div class="brand-sub">Grow Smarter</div>
+    </div>
+  </div>
+
+  <div class="nav-group core">
+    <span class="nav-label">Core Tools</span>
+    <nav class="nav">
+      <button class="active" data-page="dashboard"><span class="ico">⌂</span><span class="navtext">Overview</span></button>
+      <button data-page="soil"><span class="ico">💧</span><span class="navtext">Soil & Water</span></button>
+      <button data-page="diagnosis"><span class="ico">📷</span><span class="navtext">Crop Doctor</span></button>
+      <button data-page="alerts"><span class="ico">🔔</span><span class="navtext">Smart Alerts</span></button>
+      <button data-page="schemes"><span class="ico">🇮🇳</span><span class="navtext">Govt. Schemes</span></button>
+      <button data-page="community"><span class="ico">🗺️</span><span class="navtext">Community Map</span></button>
+    </nav>
+  </div>
+
+  <div class="nav-group advanced">
+    <span class="nav-label">Advanced</span>
+    <nav class="nav">
+      <button data-page="drone"><span class="ico">🚁</span><span class="navtext">Drone Scan</span></button>
+      <button data-page="market"><span class="ico">🛒</span><span class="navtext">Farm Market</span></button>
+      <button data-page="watersupply"><span class="ico">🚰</span><span class="navtext">Water Sources</span></button>
+      <button data-page="sprinkler"><span class="ico">🚿</span><span class="navtext">AI Sprinkler</span></button>
+      <button data-page="materials"><span class="ico">📍</span><span class="navtext">Find Materials</span></button>
+      <button data-page="labor"><span class="ico">🧑‍🌾</span><span class="navtext">Farm Labour</span></button>
+    </nav>
+  </div>
+
+  <div class="nav-group records-group">
+    <span class="nav-label">Records</span>
+    <nav class="nav">
+      <button data-page="records"><span class="ico">📊</span><span class="navtext">Farm Records</span></button>
+      <button data-page="diseasehistory"><span class="ico">🦠</span><span class="navtext">Disease History</span></button>
+    </nav>
+  </div>
+
+  <div class="sidebar-footer">
+    <strong>🌿 AgriAlly</strong>
+    <p>Technology rooted in the soil, growing with the farmer.</p>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+  <header class="topbar">
+    <div class="crumb-wrap">
+      <div class="crumb">AgriAlly / <span id="crumb">Overview</span></div>
+      <div class="page-title" id="page-title-main">Dashboard</div>
+    </div>
+    <div class="top-actions">
+      <select class="lang-select" id="language" aria-label="Choose language">
+        <option value="en">🌐 English</option>
+        <option value="hi">🇮🇳 हिन्दी</option>
+        <option value="bho">भोजपुरी</option>
+        <option value="ta">தமிழ்</option>
+        <option value="te">తెలుగు</option>
+      </select>
+      <div class="user-avatar">🌾</div>
+    </div>
+  </header>
+
+  <!-- ══ DASHBOARD ══ -->
+  <section class="page active" id="page-dashboard">
+    <div class="hero">
+      <div>
+        <div class="hero-eyebrow">✦ Your farm, understood</div>
+        <h1>Good farming<br>starts with <span>good insight.</span></h1>
+        <p>Check your soil, understand your crop, and make every drop of water count. Simple guidance built for Indian farmers.</p>
+        <button class="btn btn-primary" onclick="go('soil')">Check soil & water ↗</button>
+      </div>
+      <div class="hero-art">
+        <div class="hero-stats">
+          <div class="hero-stat"><span class="hs-val">146M</span><span class="hs-label">Farmers we serve</span></div>
+          <div class="hero-stat"><span class="hs-val">22</span><span class="hs-label">Languages</span></div>
+          <div class="hero-stat"><span class="hs-val">50+</span><span class="hs-label">Diseases detected</span></div>
+          <div class="hero-stat"><span class="hs-val">₹0</span><span class="hs-label">Cost to farmer</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric m-blue">
+        <div class="metric-top"><span class="metric-label">Soil moisture</span><div class="metric-icon">💧</div></div>
+        <strong id="dash-moisture">—%</strong>
+        <small id="dash-moisture-note">Upload a soil photo to start</small>
+      </div>
+      <div class="metric m-green">
+        <div class="metric-top"><span class="metric-label">Water suggestion</span><div class="metric-icon">🚿</div></div>
+        <strong id="dash-water">— L</strong>
+        <small>Estimated per irrigation</small>
+      </div>
+      <div class="metric m-orange">
+        <div class="metric-top"><span class="metric-label">Farm area</span><div class="metric-icon">🌱</div></div>
+        <strong id="dash-area">1 acre</strong>
+        <small>Change in Soil & Water</small>
+      </div>
+      <div class="metric m-purple">
+        <div class="metric-top"><span class="metric-label">Farm status</span><div class="metric-icon">☀️</div></div>
+        <strong id="dash-status" style="font-size:20px">Ready</strong>
+        <small>Based on details you enter</small>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <div class="sh-left"><h2>Your farm toolkit</h2><p style="color:var(--muted);font-size:13px;margin-top:4px">Everything important, in one easy place</p></div>
+      <span class="tag">14 smart tools</span>
+    </div>
+    <div class="feature-grid">
+      <article class="feature-card" onclick="go('soil')"><div class="feature-icon fi-blue">💧</div><h3>Soil & Irrigation</h3><p>Upload a soil photo, record a sensor reading, and estimate water needs for your crop and land area.</p><button class="text-btn">Open tool ↗</button></article>
+      <article class="feature-card" onclick="go('diagnosis')"><div class="feature-icon fi-green">🩺</div><h3>Crop Doctor</h3><p>Upload a leaf or crop photo and get a guided symptom check with safe next steps.</p><button class="text-btn">Check crop ↗</button></article>
+      <article class="feature-card" onclick="go('alerts')"><div class="feature-icon fi-orange">🔔</div><h3>Early Alerts</h3><p>Track weather risks, irrigation reminders, and preventive actions before problems grow.</p><button class="text-btn">View alerts ↗</button></article>
+      <article class="feature-card" onclick="speakAdvice()"><div class="feature-icon fi-teal">🗣️</div><h3>Voice in your language</h3><p>Listen to practical advice instead of reading a long report. Hindi, Bhojpuri & more.</p><button class="text-btn">▶ Play sample</button></article>
+      <article class="feature-card" onclick="go('schemes')"><div class="feature-icon fi-amber">🇮🇳</div><h3>Scheme Navigator</h3><p>Explore government support programmes and verify eligibility through official portals.</p><button class="text-btn">Find support ↗</button></article>
+      <article class="feature-card" onclick="go('community')"><div class="feature-icon fi-purple">🗺️</div><h3>Community Watch</h3><p>See a demo outbreak map and understand how nearby reports can help spot disease patterns.</p><button class="text-btn">Explore map ↗</button></article>
+      <article class="feature-card" onclick="go('drone')"><div class="feature-icon fi-blue">🚁</div><h3>Drone Field Scan</h3><p>Upload aerial field photos to prepare a comprehensive field and soil assessment.</p><button class="text-btn">Scan my field ↗</button></article>
+      <article class="feature-card" onclick="go('market')"><div class="feature-icon fi-green">🛒</div><h3>Farmer Marketplace</h3><p>Explore buying and selling listings, compare prices and connect with nearby farmers.</p><button class="text-btn">Open marketplace ↗</button></article>
+      <article class="feature-card" onclick="go('watersupply')"><div class="feature-icon fi-teal">🚰</div><h3>Water Sources</h3><p>Record and find irrigation water sources, availability and contact details.</p><button class="text-btn">Find water ↗</button></article>
+      <article class="feature-card" onclick="go('sprinkler')"><div class="feature-icon fi-blue">🚿</div><h3>AI Sprinkler Command</h3><p>Create an irrigation plan from crop, soil moisture and field area before confirming manually.</p><button class="text-btn">Plan irrigation ↗</button></article>
+      <article class="feature-card" onclick="go('materials')"><div class="feature-icon fi-orange">📍</div><h3>Material Locator</h3><p>Find nearby seed, fertilizer, tool and irrigation-material suppliers quickly.</p><button class="text-btn">Locate supplies ↗</button></article>
+      <article class="feature-card" onclick="go('labor')"><div class="feature-icon fi-amber">🧑‍🌾</div><h3>Farm Labour Connect</h3><p>Workers can list skills and availability; farmers can find and contact them directly.</p><button class="text-btn">Find workers ↗</button></article>
+      <article class="feature-card" onclick="go('records')"><div class="feature-icon fi-purple">📊</div><h3>Farm Records & Profit</h3><p>Record harvest quantity, costs, sales, profit, purchases, diseases and losses.</p><button class="text-btn">Open ledger ↗</button></article>
+      <article class="feature-card" onclick="go('diseasehistory')"><div class="feature-icon fi-red">🦠</div><h3>Disease History</h3><p>Track how often diseases and pests affect crops, how much is lost and what treatment worked.</p><button class="text-btn">View history ↗</button></article>
+    </div>
+
+    <div class="section-head" style="margin-top:32px">
+      <div class="sh-left"><h2>Today's farm checklist</h2><p style="color:var(--muted);font-size:13px;margin-top:4px">Small actions prevent avoidable losses</p></div>
+    </div>
+    <div class="panel">
+      <div class="checklist">
+        <label><input type="checkbox"> Check soil near the root zone before watering.</label>
+        <label><input type="checkbox"> Look at the underside of leaves for pests or spots.</label>
+        <label><input type="checkbox"> Check the local weather forecast before spraying.</label>
+        <label><input type="checkbox"> Keep a note of irrigation and fertilizer use today.</label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SOIL ══ -->
+  <section class="page" id="page-soil">
+    <div class="page-hero ph-blue">
+      <div><h2>Soil & Water Intelligence</h2><p>Understand moisture and estimate irrigation for your field</p></div>
+      <span class="ph-icon">💧</span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-head"><div><h3>01 · Soil photo / reading</h3><p class="sub">Take a clear photo of soil from the root zone.</p></div><span class="tag blue">Upload</span></div>
+        <div class="dropzone" id="soil-drop"><span class="dz-icon">📸</span><strong>Upload or take a soil photo</strong><span>JPG, PNG or WEBP · tap to choose</span><img id="soil-preview" alt="Soil photo preview" style="display:none"><input id="soil-file" type="file" accept="image/*" capture="environment" aria-label="Upload soil photo"></div>
+        <div class="field"><label for="sensor">Optional: soil moisture sensor reading (%)</label><input id="sensor" type="number" min="0" max="100" placeholder="e.g. 32 — use a real sensor reading"></div>
+        <div class="row">
+          <div class="field"><label for="soil-type">Soil type</label><select id="soil-type"><option value="loam">Loamy</option><option value="clay">Clay</option><option value="sandy">Sandy</option><option value="silt">Silty</option></select></div>
+          <div class="field"><label for="crop">Crop</label><select id="crop"><option value="wheat">Wheat</option><option value="rice">Rice / Paddy</option><option value="tomato">Tomato</option><option value="maize">Maize</option><option value="potato">Potato</option><option value="mustard">Mustard</option><option value="other">Other crop</option></select></div>
+        </div>
+        <button class="btn btn-dark" style="width:100%;margin-top:4px" onclick="analyseSoil()">Analyse soil & estimate water ↗</button>
+        <div class="notice">Important: a normal photo cannot reliably measure soil moisture percentage. This demo shows an illustrative estimate; use a calibrated sensor or lab test for a real measurement.</div>
+        <div id="soil-result" class="result"><h4>🌿 Your soil report</h4><div class="big-number" id="moisture-value">—%</div><div class="progress"><span id="moisture-bar"></span></div><p id="moisture-status"></p><p id="moisture-method"></p><div class="water-result"><div><small>Estimated water volume</small><strong id="water-litres">— L</strong></div><div><small>Equivalent depth</small><strong id="water-mm">— mm</strong></div></div><p id="water-advice"></p><button class="btn btn-dark btn-sm" style="margin-top:12px" onclick="speakSoil()">🔊 Listen to advice</button></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><h3>02 · Irrigation calculator</h3><p class="sub">Estimate a starting amount from your field details.</p></div></div>
+        <div class="field"><label for="area">Field area</label><input type="number" id="area" value="1" min="0.01" step="0.1"></div>
+        <div class="row">
+          <div class="field"><label for="area-unit">Unit</label><select id="area-unit"><option value="acre">Acre</option><option value="hectare">Hectare</option><option value="bigha">Bigha</option></select></div>
+          <div class="field"><label for="stage">Crop stage</label><select id="stage"><option value="early">Early growth</option><option value="vegetative" selected>Vegetative</option><option value="flowering">Flowering / fruiting</option><option value="mature">Maturity</option></select></div>
+        </div>
+        <div class="field"><label for="target-mm">Planned irrigation depth (mm)</label><input type="number" id="target-mm" value="10" min="1" max="100" step="1"></div>
+        <div class="field"><label for="efficiency">Application efficiency</label><select id="efficiency"><option value=".9">Drip / well-managed (90%)</option><option value=".75" selected>Sprinkler / average (75%)</option><option value=".6">Surface / lower (60%)</option></select></div>
+        <button class="btn btn-dark" style="width:100%;margin-top:4px" onclick="calcWater()">Calculate water needed</button>
+        <div class="result show" id="calc-result"><h4>💦 Your estimate</h4><div class="big-number" id="calc-litres">40,470 L</div><p id="calc-detail">For 1 acre at 10 mm depth and 75% efficiency.</p><div class="notice">1 mm over 1 m² = 1 litre. Actual irrigation depends on root-zone moisture, crop stage, rainfall, soil and local recommendations.</div></div>
+        <div class="section-head" style="margin-top:20px"><div><h3 style="font-size:15px">Quick field tips</h3></div></div>
+        <div class="alert-list"><div class="alert"><div class="alert-icon green">🌱</div><div><b>Check below the surface</b><small>Topsoil can look dry while root zone is still moist.</small></div></div><div class="alert"><div class="alert-icon blue">🌧️</div><div><b>Account for rainfall</b><small>Delay or reduce irrigation if rain is expected.</small></div></div><div class="alert"><div class="alert-icon">🧪</div><div><b>Know your soil</b><small>Texture and crop stage change how often you irrigate.</small></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ DIAGNOSIS ══ -->
+  <section class="page" id="page-diagnosis">
+    <div class="page-hero ph-green">
+      <div><h2>Crop Doctor</h2><p>Photo-assisted crop health check with practical next steps</p></div>
+      <span class="ph-icon">🩺</span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-head"><div><h3>Upload a leaf or crop photo</h3><p class="sub">Use a sharp photo in natural light; include affected and healthy areas.</p></div></div>
+        <div class="dropzone"><span class="dz-icon">🍃</span><strong>Choose crop photo</strong><span>Leaf, stem, fruit or whole plant</span><img id="crop-preview" alt="Crop photo preview" style="display:none"><input id="crop-file" type="file" accept="image/*" capture="environment" aria-label="Upload crop photo"></div>
+        <div class="row">
+          <div class="field"><label for="diag-crop">Crop type</label><select id="diag-crop"><option>Wheat</option><option>Rice / Paddy</option><option>Tomato</option><option>Maize</option><option>Potato</option><option>Mustard</option><option>Other</option></select></div>
+          <div class="field"><label for="symptom">Main symptom</label><select id="symptom"><option value="spots">Spots / lesions</option><option value="yellow">Yellowing leaves</option><option value="wilting">Wilting / curling</option><option value="holes">Holes / insects</option><option value="stunted">Slow growth</option></select></div>
+        </div>
+        <button class="btn btn-dark" style="width:100%;margin-top:4px" onclick="diagnose()">Generate guided check</button>
+        <div class="result" id="diag-result"><h4 id="diag-title">Possible causes</h4><p id="diag-text"></p><p id="diag-next"></p><button class="btn btn-dark btn-sm" style="margin-top:10px" onclick="speakDiagnosis()">🔊 Listen</button></div>
+        <div class="notice">This prototype does not run a trained crop-disease model. Results are symptom-based guidance only. Confirm with a local KVK/agriculture officer before applying pesticides.</div>
+      </div>
+      <div class="panel">
+        <h3>Crop disease & problem guide</h3><p class="sub" style="margin-bottom:16px">Select a crop problem to see common signs and safer next steps.</p>
+        <div class="field"><label for="guide-crop">Crop</label><select id="guide-crop"><option value="wheat">Wheat</option><option value="rice">Rice / Paddy</option><option value="tomato">Tomato</option><option value="maize">Maize</option><option value="potato">Potato</option><option value="mustard">Mustard</option><option value="general">General crop problems</option></select></div>
+        <div class="field"><label for="guide-problem">Disease or problem</label><select id="guide-problem"><option value="rust">Rust / leaf spots</option><option value="blast">Blast / blight</option><option value="mildew">Powdery mildew</option><option value="rot">Root rot / waterlogging</option><option value="aphids">Aphids / sucking pests</option><option value="caterpillars">Caterpillars / leaf chewing</option><option value="yellow">Yellowing / nutrient imbalance</option><option value="drought">Drought / heat stress</option><option value="virus">Possible viral disease</option></select></div>
+        <button class="btn btn-dark btn-sm" onclick="showCropGuide()">Show signs & care steps</button>
+        <div id="guide-result" class="result"><h4 id="guide-title"></h4><p id="guide-signs"></p><p id="guide-care"></p></div>
+        <div class="notice" style="margin-top:16px">Confirm the crop, disease and locally registered treatment with a KVK, agriculture officer or plant-health expert before applying any pesticide.</div>
+      </div>
+      <div class="panel">
+        <h3>How to take a useful photo</h3><p class="sub" style="margin-bottom:16px">Small steps improve the quality of a real AI diagnosis.</p>
+        <div class="alert-list"><div class="alert"><div class="alert-icon">☀️</div><div><b>Use natural light</b><small>Avoid strong shadows and blurry images.</small></div></div><div class="alert"><div class="alert-icon green">🍃</div><div><b>Show both sides</b><small>Photograph top and underside of an affected leaf.</small></div></div><div class="alert"><div class="alert-icon blue">📍</div><div><b>Include context</b><small>Note the crop age, location, recent rain and spread.</small></div></div><div class="alert"><div class="alert-icon">🧴</div><div><b>Avoid guesswork with chemicals</b><small>Do not spray until cause is verified.</small></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ALERTS ══ -->
+  <section class="page" id="page-alerts">
+    <div class="page-hero ph-orange">
+      <div><h2>Smart Alerts & Prevention</h2><p>Weather reminders and preventive crop care actions</p></div>
+      <span class="ph-icon">🔔</span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-head"><div><h3>Weather risk watch</h3><p class="sub">Enter local conditions to get a basic risk reminder.</p></div><span style="font-size:28px">🌦️</span></div>
+        <div class="row"><div class="field"><label for="temp">Temperature (°C)</label><input type="number" id="temp" value="29"></div><div class="field"><label for="humidity">Humidity (%)</label><input type="number" id="humidity" value="78" min="0" max="100"></div></div>
+        <div class="field"><label for="rain">Rain expected in 24 hours?</label><select id="rain"><option value="yes">Yes</option><option value="no">No</option></select></div>
+        <button class="btn btn-dark" style="margin-top:4px" onclick="checkRisk()">Check risk reminders</button>
+        <div class="result" id="risk-result"><h4>⚠️ Weather reminders</h4><p id="risk-text"></p></div>
+        <div class="notice">No live weather service is connected. The 48–72hr outbreak warning in AgriAlly's concept requires real weather data and a validated prediction model.</div>
+      </div>
+      <div class="panel">
+        <h3>Prevention alerts</h3><p class="sub" style="margin-bottom:16px">Common-sense prompts you can use right now.</p>
+        <div class="alert-list">
+          <div class="alert"><div class="alert-icon blue">💧</div><div><b>Root-zone moisture check</b><small>Before the next irrigation</small><p>Use a sensor or check soil at root depth rather than relying on surface colour alone.</p></div></div>
+          <div class="alert"><div class="alert-icon green">🍃</div><div><b>Scout for disease</b><small>Twice weekly in risk periods</small><p>Look for spreading spots, unusual yellowing, pests and wilting.</p></div></div>
+          <div class="alert"><div class="alert-icon">🌧️</div><div><b>Rain-aware watering</b><small>Before running the pump</small><p>Check a trusted local forecast and avoid unnecessary irrigation before rainfall.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SCHEMES ══ -->
+  <section class="page" id="page-schemes">
+    <div class="page-hero ph-amber">
+      <div><h2>Government Scheme Navigator</h2><p>Explore possible support and verify on official portals</p></div>
+      <span class="ph-icon">🇮🇳</span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Find schemes to explore</h3><p class="sub" style="margin-bottom:16px">Use these filters to create a starting shortlist.</p>
+        <div class="field"><label for="farmer-type">Your farming profile</label><select id="farmer-type"><option value="small">Small / marginal farmer</option><option value="woman">Woman farmer</option><option value="tenant">Tenant / sharecropper</option><option value="general">Other farmer</option></select></div>
+        <div class="field"><label for="state">State</label><select id="state"><option>Uttar Pradesh</option><option>Bihar</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Punjab</option><option>Other</option></select></div>
+        <div class="field"><label for="need">Main support needed</label><select id="need"><option value="income">Income support</option><option value="insurance">Crop insurance</option><option value="water">Irrigation / water</option><option value="soil">Soil testing / nutrients</option><option value="credit">Farm credit</option></select></div>
+        <button class="btn btn-dark" style="margin-top:4px" onclick="findSchemes()">Show schemes to check</button>
+        <div id="scheme-results" class="result"></div>
+        <div class="notice">Eligibility, deadlines and documents can change. This demo is not an official eligibility decision and does not submit applications.</div>
+      </div>
+      <div class="panel">
+        <h3>Official starting points</h3><p class="sub" style="margin-bottom:16px">Open the government portal to confirm current rules.</p>
+        <div class="scheme"><strong>PM-KISAN</strong><p>Income-support for eligible landholding farmer families.</p><a href="https://pmkisan.gov.in/" target="_blank" rel="noopener">Open official PM-KISAN ↗</a></div>
+        <div class="scheme"><strong>PM Fasal Bima Yojana</strong><p>Crop insurance information, notifications and enrolment details.</p><a href="https://pmfby.gov.in/" target="_blank" rel="noopener">Open official PMFBY ↗</a></div>
+        <div class="scheme"><strong>Soil Health Card</strong><p>Learn about soil testing and nutrient recommendations.</p><a href="https://soilhealth.dac.gov.in/" target="_blank" rel="noopener">Open Soil Health Card ↗</a></div>
+        <div class="scheme"><strong>Kisan Credit Card (KCC)</strong><p>Ask a participating bank about eligible crop loans and required documents.</p><a href="https://www.myscheme.gov.in/" target="_blank" rel="noopener">Explore official scheme info ↗</a></div>
+        <div class="scheme"><strong>Farmer Call Centre</strong><p>Agriculture guidance in supported languages.</p><b style="color:var(--green)">📞 Dial 1800-180-1551</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ COMMUNITY ══ -->
+  <section class="page" id="page-community">
+    <div class="page-hero ph-purple">
+      <div><h2>Community Disease Watch</h2><p>A demo view of how local reports reveal outbreak patterns</p></div>
+      <span class="ph-icon">🗺️</span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-head"><div><h3>Regional crop health map</h3><p class="sub">Illustrative reports — not live farm data.</p></div></div>
+        <div class="mapbox"><div style="font-weight:800;font-size:13px;margin-bottom:8px">Uttar Pradesh · sample view</div><div class="mapdot" style="top:35%;left:38%;background:#d04545"></div><div class="mapdot" style="top:45%;left:42%;background:#d04545"></div><div class="mapdot" style="top:51%;left:36%;background:#d04545"></div><div class="mapdot" style="top:63%;left:63%;background:#d97706"></div><div class="mapdot" style="top:25%;left:71%;background:#22c55e"></div><div class="maplegend">🔴 Alert · 🟡 Monitor · 🟢 Clear</div></div>
+        <p class="map-caption">In the proposed system, an alert is raised when 3+ nearby farms report the same verified issue.</p>
+        <div class="field"><label for="report-crop">Crop affected</label><select id="report-crop"><option>Wheat</option><option>Rice / Paddy</option><option>Tomato</option><option>Maize</option><option>Other</option></select></div>
+        <div class="field"><label for="report-issue">Issue observed</label><select id="report-issue"><option>Leaf spots</option><option>Yellowing</option><option>Wilting</option><option>Insect damage</option><option>Other / unsure</option></select></div>
+        <button class="btn btn-dark btn-sm" onclick="reportIssue()">Add demo community report</button>
+        <div id="report-result" class="result"></div>
+      </div>
+      <div class="panel">
+        <h3>Community reports</h3><p class="sub" style="margin-bottom:16px">Demo entries for the concept presentation.</p>
+        <div class="alert-list" id="reports">
+          <div class="alert"><div class="alert-icon red">🌾</div><div><b>Wheat · leaf spots</b><small>Sample report · western UP</small><p>Needs verification by an agriculture expert.</p></div></div>
+          <div class="alert"><div class="alert-icon">🍅</div><div><b>Tomato · yellowing</b><small>Sample report · central UP</small><p>Several possible causes; avoid diagnosing from colour alone.</p></div></div>
+        </div>
+        <div class="notice" style="margin-top:14px">Reports here stay in this page only. No data is sent to a server.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ DRONE ══ -->
+  <section class="page" id="page-drone">
+    <div class="page-hero ph-blue">
+      <div><h2>Drone Field Scan</h2><p>Upload aerial images to prepare a field assessment request</p></div>
+      <span class="ph-icon">🚁</span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Upload field photographs</h3><p class="sub" style="margin-bottom:16px">Choose multiple overlapping images of the whole field.</p>
+        <div class="dropzone"><span class="dz-icon">🚁</span><strong>Select drone field images</strong><span>JPG, PNG or WEBP · multiple images supported</span><input id="drone-files" type="file" accept="image/*" multiple aria-label="Upload drone field images"></div>
+        <div class="field"><label for="drone-crop">Crop planted</label><select id="drone-crop"><option>Wheat</option><option>Rice / Paddy</option><option>Tomato</option><option>Maize</option><option>Mustard</option><option>Other</option></select></div>
+        <div class="row"><div class="field"><label for="drone-area">Field area (acres)</label><input id="drone-area" type="number" min="0.01" step="0.1" value="1"></div><div class="field"><label for="drone-stage">Crop stage</label><select id="drone-stage"><option>Early growth</option><option>Vegetative</option><option>Flowering / fruiting</option><option>Maturity</option></select></div></div>
+        <button class="btn btn-dark" style="width:100%;margin-top:4px" onclick="analyseDrone()">Prepare field assessment ↗</button>
+        <div id="drone-result" class="result"><h4>Field assessment request</h4><p id="drone-report"></p></div>
+        <div class="notice">This prototype only prepares a local summary; it does not run image-recognition AI or send photos to a server.</div>
+      </div>
+      <div class="panel">
+        <h3>What a connected AI service could assess</h3>
+        <div class="alert-list" style="margin-top:16px">
+          <div class="alert"><div class="alert-icon green">🌱</div><div><b>Crop coverage and growth variation</b><small>Compare field zones when suitable imagery is available.</small></div></div>
+          <div class="alert"><div class="alert-icon blue">💧</div><div><b>Possible water-stress zones</b><small>Flag areas for ground checking; aerial images alone don't prove soil moisture.</small></div></div>
+          <div class="alert"><div class="alert-icon">🧪</div><div><b>Soil and nutrient follow-up</b><small>Use GPS-tagged samples and lab testing to confirm soil properties.</small></div></div>
+          <div class="alert"><div class="alert-icon purple">🗺️</div><div><b>Field-zone report</b><small>Future integration combines image maps, GPS boundaries and expert advice.</small></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ MARKET ══ -->
+  <section class="page" id="page-market">
+    <div class="page-hero ph-green">
+      <div><h2>Farmer Marketplace</h2><p>Buy and sell farm goods, compare prices, discover nearby farmers</p></div>
+      <span class="ph-icon">🛒</span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Browse marketplace</h3><p class="sub" style="margin-bottom:16px">Demo listings only — not live market rates.</p>
+        <div class="field"><label for="market-category">Product category</label><select id="market-category"><option value="all">All products</option><option value="seed">Seeds</option><option value="fertilizer">Fertilizers</option><option value="crop">Farm produce</option><option value="equipment">Equipment & tools</option></select></div>
+        <div id="market-listings" class="alert-list">
+          <div class="alert market-item" data-category="seed"><div class="alert-icon green">🌾</div><div><b>Wheat seeds · 1 kg</b><small>Example seller · nearby area</small><p>Example price: ₹55/kg · Confirm variety and seller credentials.</p></div></div>
+          <div class="alert market-item" data-category="fertilizer"><div class="alert-icon">🧪</div><div><b>Compost · 25 kg bag</b><small>Example seller · not verified</small><p>Example price: ₹180/bag · Check composition and packaging.</p></div></div>
+          <div class="alert market-item" data-category="crop"><div class="alert-icon">🌽</div><div><b>Maize grain · 1 quintal</b><small>Example farmer listing</small><p>Example asking price: ₹2,200/quintal · Not a live mandi quote.</p></div></div>
+          <div class="alert market-item" data-category="equipment"><div class="alert-icon blue">🔧</div><div><b>Sprinkler connector set</b><small>Example supplier listing</small><p>Example price: ₹350/set · Verify compatibility before purchase.</p></div></div>
+        </div>
+        <div class="notice" style="margin-top:12px">A real marketplace shows verified sellers, current mandi prices, transport costs and buyer-seller protections.</div>
+      </div>
+      <div class="panel">
+        <h3>Create a local listing</h3><p class="sub" style="margin-bottom:16px">Add a sample buy/sell listing to this browser demo.</p>
+        <div class="field"><label for="listing-action">I want to</label><select id="listing-action"><option>Sell</option><option>Buy</option></select></div>
+        <div class="field"><label for="listing-product">Product</label><input id="listing-product" placeholder="e.g. mustard seed, wheat grain"></div>
+        <div class="row"><div class="field"><label for="listing-price">Price (₹)</label><input id="listing-price" type="number" min="0" placeholder="Price"></div><div class="field"><label for="listing-unit">Unit</label><select id="listing-unit"><option>per kg</option><option>per quintal</option><option>per bag</option><option>per item</option></select></div></div>
+        <div class="field"><label for="listing-area">Village / area (optional)</label><input id="listing-area" placeholder="Enter locality"></div>
+        <button class="btn btn-dark" style="margin-top:4px" onclick="addListing()">Add demo listing</button>
+        <div id="listing-result" class="result"></div>
+        <div class="notice">Listings stay in this page only. No payment or real-time price feed is connected.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ WATER SUPPLY ══ -->
+  <section class="page" id="page-watersupply">
+    <div class="page-hero ph-teal">
+      <div><h2>Irrigation Water Sources</h2><p>Record water sources and check access details before planning irrigation</p></div>
+      <span class="ph-icon">🚰</span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Search water availability</h3><p class="sub" style="margin-bottom:16px">Filter the example directory by source type and locality.</p>
+        <div class="field"><label for="water-source-type">Water source</label><select id="water-source-type"><option value="all">All source types</option><option value="canal">Canal / public supply</option><option value="well">Well / borewell</option><option value="pond">Pond / reservoir</option><option value="provider">Water supplier / community</option></select></div>
+        <div class="field"><label for="water-locality">Village / district</label><input id="water-locality" placeholder="Enter your village or district"></div>
+        <button class="btn btn-dark btn-sm" onclick="searchWaterSources()">Search source directory</button>
+        <div id="water-source-results" class="result"><h4>Example directory</h4><p>Demo only: canal schedule, community pond and registered water suppliers appear here after verified local data is connected.</p></div>
+        <div class="notice">No live water-supply database is connected. Confirm canal schedules and water quality with your local irrigation department.</div>
+      </div>
+      <div class="panel">
+        <h3>Water planning checklist</h3>
+        <div class="checklist" style="margin-top:16px">
+          <label><input type="checkbox"> Confirm source is available on the planned irrigation day.</label>
+          <label><input type="checkbox"> Check water quality and suitability for the crop.</label>
+          <label><input type="checkbox"> Estimate field demand using the Soil & Water calculator.</label>
+          <label><input type="checkbox"> Check local permissions, shared-use rules and fees.</label>
+          <label><input type="checkbox"> Record supplier/contact details and agreed schedule.</label>
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:16px" onclick="go('soil')">Open irrigation calculator ↗</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SPRINKLER ══ -->
+  <section class="page" id="page-sprinkler">
+    <div class="page-hero ph-blue">
+      <div><h2>AI Sprinkler Command</h2><p>Prepare a proposed irrigation command; review before activating any equipment</p></div>
+      <span class="ph-icon">🚿</span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Build irrigation command</h3><p class="sub" style="margin-bottom:16px">Use real sensor readings where possible.</p>
+        <div class="row"><div class="field"><label for="spr-moisture">Root-zone moisture (%)</label><input id="spr-moisture" type="number" min="0" max="100" value="30"></div><div class="field"><label for="spr-target">Target moisture (%)</label><input id="spr-target" type="number" min="1" max="100" value="45"></div></div>
+        <div class="row"><div class="field"><label for="spr-area">Field area (acres)</label><input id="spr-area" type="number" min="0.01" step="0.1" value="1"></div><div class="field"><label for="spr-crop">Crop</label><select id="spr-crop"><option>Wheat</option><option>Rice / Paddy</option><option>Tomato</option><option>Maize</option><option>Mustard</option><option>Other</option></select></div></div>
+        <div class="field"><label for="spr-rain">Rain expected soon?</label><select id="spr-rain"><option value="no">No / not known</option><option value="yes">Yes</option></select></div>
+        <button class="btn btn-dark" style="width:100%;margin-top:4px" onclick="createSprinklerCommand()">Generate suggested command</button>
+        <div id="sprinkler-result" class="result"><h4>Suggested command</h4><p id="sprinkler-command"></p><button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="copySprinklerCommand()">Copy command</button></div>
+        <button class="btn btn-primary" style="margin-top:12px" onclick="confirmSprinklerCommand()">Review / confirm demo command</button>
+        <div class="notice">This demo does not connect to or control any physical device. Never run irrigation automatically from an unverified estimate.</div>
+      </div>
+      <div class="panel">
+        <h3>How smart irrigation works</h3>
+        <div class="alert-list" style="margin-top:16px">
+          <div class="alert"><div class="alert-icon blue">📡</div><div><b>1. Read field sensors</b><small>Collect calibrated root-zone moisture and device status.</small></div></div>
+          <div class="alert"><div class="alert-icon">🌦️</div><div><b>2. Check crop and weather</b><small>Consider crop stage, rainfall forecast and water availability.</small></div></div>
+          <div class="alert"><div class="alert-icon green">🤖</div><div><b>3. Recommend a schedule</b><small>Suggest zones and duration using a validated agronomic model.</small></div></div>
+          <div class="alert"><div class="alert-icon purple">✅</div><div><b>4. Farmer confirms</b><small>Only a connected, tested system sends commands after confirmation.</small></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ MATERIALS ══ -->
+  <section class="page" id="page-materials">
+    <div class="page-hero ph-orange">
+      <div><h2>Find Required Materials</h2><p>Look for seed, fertilizer, tools and equipment by category and locality</p></div>
+      <span class="ph-icon">📍</span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Locate a supplier</h3><p class="sub" style="margin-bottom:16px">Enter the item and your area to prepare a local search.</p>
+        <div class="field"><label for="material-type">Material required</label><select id="material-type"><option>Seeds</option><option>Fertilizers / compost</option><option>Crop protection products</option><option>Drip pipes / sprinkler parts</option><option>Farm tools / machinery</option><option>Soil testing laboratory</option><option>Animal feed</option><option>Other</option></select></div>
+        <div class="field"><label for="material-name">Specific item (optional)</label><input id="material-name" placeholder="e.g. tomato seed variety, 1-inch pipe"></div>
+        <div class="field"><label for="material-location">Village / town / PIN code</label><input id="material-location" placeholder="Enter your location"></div>
+        <button class="btn btn-dark btn-sm" onclick="findMaterials()">Find materials</button>
+        <div id="material-results" class="result"></div>
+        <div class="notice">No live supplier inventories connected. Confirm price, licence and availability before buying.</div>
+      </div>
+      <div class="panel">
+        <h3>Before you buy</h3>
+        <div class="alert-list" style="margin-top:16px">
+          <div class="alert"><div class="alert-icon">🧾</div><div><b>Compare total price</b><small>Include delivery, transport and installation where applicable.</small></div></div>
+          <div class="alert"><div class="alert-icon green">✅</div><div><b>Check authenticity</b><small>Look for sealed packaging, batch details and authorised sellers.</small></div></div>
+          <div class="alert"><div class="alert-icon blue">📍</div><div><b>Check distance and stock</b><small>Call the supplier before travelling.</small></div></div>
+          <div class="alert"><div class="alert-icon">🧪</div><div><b>Buy for your crop needs</b><small>Use soil-test recommendations for inputs.</small></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LABOUR ══ -->
+  <section class="page" id="page-labor">
+    <div class="page-hero ph-amber">
+      <div><h2>Farm Labour Connect</h2><p>Workers list skills and availability; farmers browse and contact directly</p></div>
+      <span class="ph-icon">🧑‍🌾</span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Worker registration</h3><p class="sub" style="margin-bottom:16px">For labourers looking for farm work.</p>
+        <div class="field"><label for="worker-name">Name / display name</label><input id="worker-name" placeholder="Enter name"></div>
+        <div class="field"><label for="worker-location">Village / town / district</label><input id="worker-location" placeholder="Where are you available for work?"></div>
+        <div class="row"><div class="field"><label for="worker-skill">Work type</label><select id="worker-skill"><option>Harvesting</option><option>Sowing / transplanting</option><option>Weeding</option><option>Irrigation</option><option>Spraying</option><option>Tractor / machinery operator</option><option>General farm work</option></select></div><div class="field"><label for="worker-wage">Expected wage (₹/day)</label><input id="worker-wage" type="number" min="0" placeholder="e.g. 500"></div></div>
+        <div class="row"><div class="field"><label for="worker-phone">Contact phone (optional)</label><input id="worker-phone" type="tel" placeholder="Phone number"></div><div class="field"><label for="worker-availability">Availability</label><select id="worker-availability"><option>Available now</option><option>Available this week</option><option>Available from a chosen date</option></select></div></div>
+        <button class="btn btn-dark" style="margin-top:4px" onclick="addWorker()">Publish worker listing</button>
+        <div id="worker-result" class="result"></div>
+        <div class="notice">Demo listings are stored in this browser only. A public service must include consent controls and fair-wage guidance.</div>
+      </div>
+      <div class="panel">
+        <h3>Find available farm workers</h3><p class="sub" style="margin-bottom:16px">Filter local demo listings by location and type of work.</p>
+        <div class="field"><label for="labor-search-location">Location contains</label><input id="labor-search-location" placeholder="Village / district"></div>
+        <div class="field"><label for="labor-search-skill">Work needed</label><select id="labor-search-skill"><option value="all">Any farm work</option><option>Harvesting</option><option>Sowing / transplanting</option><option>Weeding</option><option>Irrigation</option><option>Spraying</option><option>Tractor / machinery operator</option><option>General farm work</option></select></div>
+        <button class="btn btn-outline btn-sm" onclick="filterWorkers()">Search workers</button>
+        <div id="worker-list" class="alert-list" style="margin-top:14px"><p class="sub">No worker listings yet. Add a worker profile to start the local demo directory.</p></div>
+        <div class="notice">Always agree on duties, hours, wage, transport and payment terms before work starts.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ DISEASE HISTORY ══ -->
+  <section class="page" id="page-diseasehistory">
+    <div class="page-hero ph-red">
+      <div><h2>Disease History & Treatment Tracker</h2><p>Record incidents, count recurrences and keep treatment notes for future seasons</p></div>
+      <span class="ph-icon">🦠</span>
+    </div>
+    <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+      <div class="metric m-blue"><div class="metric-top"><span class="metric-label">Incidents logged</span><div class="metric-icon">📝</div></div><strong id="dh-total">0</strong><small>Saved reports</small></div>
+      <div class="metric m-orange"><div class="metric-top"><span class="metric-label">Affected events</span><div class="metric-icon">🌿</div></div><strong id="dh-affected">0</strong><small>Times crop was affected</small></div>
+      <div class="metric m-red"><div class="metric-top"><span class="metric-label">Destroyed events</span><div class="metric-icon">⚠️</div></div><strong id="dh-destroyed">0</strong><small>Severe / destroyed cases</small></div>
+      <div class="metric m-purple"><div class="metric-top"><span class="metric-label">Estimated loss</span><div class="metric-icon">📉</div></div><strong id="dh-loss">0 g</strong><small>Crop quantity lost</small></div>
+    </div>
+    <div class="panel" style="margin-bottom:16px" id="dh-reminder-panel">
+      <div class="panel-head"><div><h3>🔔 History-based risk reminders</h3><p class="sub">Uses only dates already saved in Disease History. No outside forecast or generic predictions.</p></div><span class="tag warn">Personal history</span></div>
+      <div class="notice" style="margin:0 0 14px">A reminder is estimated only when the same crop and problem have been recorded on at least two different dates. It extrapolates the average gap; it is not a confirmed forecast. Always confirm with a local agriculture expert.</div>
+      <div id="dh-reminders" class="alert-list"><p class="sub">Add at least two dated records for the same crop and problem to create a history-based reminder.</p></div>
+      <button class="btn btn-dark btn-sm" style="margin-top:14px" onclick="enableDiseaseNotifications()">Enable browser reminders</button>
+      <p class="sub" style="margin-top:8px">Browser notifications can appear when this page is open and you allow them.</p>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Log a crop-health incident</h3><p class="sub" style="margin-bottom:16px">Create one entry whenever a disease, pest or other factor is observed.</p>
+        <div class="row"><div class="field"><label for="dh-date">Date observed</label><input id="dh-date" type="date"></div><div class="field"><label for="dh-crop">Crop / variety</label><input id="dh-crop" placeholder="e.g. wheat, HD-2967"></div></div>
+        <div class="row"><div class="field"><label for="dh-problem">Disease / pest / factor</label><select id="dh-problem"><option>Rust / leaf spots</option><option>Blast / blight</option><option>Powdery mildew</option><option>Root rot / waterlogging</option><option>Aphids / sucking pests</option><option>Caterpillars / leaf chewing</option><option>Possible viral disease</option><option>Nutrient imbalance</option><option>Drought / heat stress</option><option>Excess rain / flooding</option><option>Wind / hail damage</option><option>Other / not identified</option></select></div><div class="field"><label for="dh-cause">Suspected cause type</label><select id="dh-cause"><option>Disease / pathogen</option><option>Insect / pest</option><option>Weather / natural factor</option><option>Water / irrigation issue</option><option>Nutrient / soil issue</option><option>Animal / physical damage</option><option>Unknown / needs confirmation</option></select></div></div>
+        <div class="row"><div class="field"><label for="dh-times">Number of occurrences</label><input id="dh-times" type="number" min="1" step="1" value="1"></div><div class="field"><label for="dh-status">Impact on crop</label><select id="dh-status"><option>Affected — monitoring</option><option>Treated — recovering</option><option>Severe damage</option><option>Crop/plant destroyed</option></select></div></div>
+        <div class="row"><div class="field"><label for="dh-area">Area affected (acres, optional)</label><input id="dh-area" type="number" min="0" step="0.1" placeholder="e.g. 0.5"></div><div class="field"><label for="dh-loss">Estimated crop lost (grams)</label><input id="dh-loss" type="number" min="0" step="1" value="0"></div></div>
+        <div class="field"><label for="dh-treatment">Treatment / action taken</label><input id="dh-treatment" placeholder="e.g. removed affected leaves, drainage improved"></div>
+        <div class="field"><label for="dh-outcome">Outcome / follow-up</label><input id="dh-outcome" placeholder="e.g. spread slowed after 5 days; still monitoring"></div>
+        <button class="btn btn-dark" style="margin-top:4px" onclick="saveDiseaseIncident()">Save incident</button>
+        <div id="dh-result" class="result"></div>
+        <div class="notice">Entries saved in this browser only. For treatment, ask a local KVK/agriculture officer; use only crop-appropriate, locally registered products as labelled.</div>
+      </div>
+      <div class="panel">
+        <h3>Disease and cause summary</h3><p class="sub" style="margin-bottom:16px">Counts calculated from incidents saved on this device.</p>
+        <div class="field"><label for="dh-filter-crop">Filter by crop (optional)</label><input id="dh-filter-crop" placeholder="Type crop name"></div>
+        <div class="field"><label for="dh-filter-problem">Filter by disease / factor</label><select id="dh-filter-problem"><option value="all">All diseases and factors</option><option>Rust / leaf spots</option><option>Blast / blight</option><option>Powdery mildew</option><option>Root rot / waterlogging</option><option>Aphids / sucking pests</option><option>Caterpillars / leaf chewing</option><option>Possible viral disease</option><option>Nutrient imbalance</option><option>Drought / heat stress</option><option>Excess rain / flooding</option><option>Wind / hail damage</option><option>Other / not identified</option></select></div>
+        <div id="dh-summary" class="alert-list"><p class="sub">No disease history recorded yet. Add an incident to build your history.</p></div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="exportDiseaseHistory()">Export CSV</button>
+          <button class="btn btn-outline btn-sm" onclick="clearDiseaseHistory()">Clear history</button>
+        </div>
+        <div class="notice" style="margin-top:12px">The tracker counts what you enter; it does not automatically detect diseases from photos.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FARM RECORDS ══ -->
+  <section class="page" id="page-records">
+    <div class="page-hero ph-purple">
+      <div><h2>Farm Records & Profit Ledger</h2><p>Track production, costs, profit, purchases, disease history and losses</p></div>
+      <span class="ph-icon">📊</span>
+    </div>
+    <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+      <div class="metric m-green"><div class="metric-top"><span class="metric-label">Total harvest</span><div class="metric-icon">🌾</div></div><strong id="ledger-harvest">0 g</strong><small>All saved records</small></div>
+      <div class="metric m-orange"><div class="metric-top"><span class="metric-label">Production cost</span><div class="metric-icon">🧾</div></div><strong id="ledger-cost">₹0</strong><small>All saved records</small></div>
+      <div class="metric m-blue"><div class="metric-top"><span class="metric-label">Profit / loss</span><div class="metric-icon">📈</div></div><strong id="ledger-profit">₹0</strong><small>Sales minus costs</small></div>
+      <div class="metric m-red"><div class="metric-top"><span class="metric-label">Reported losses</span><div class="metric-icon">⚠️</div></div><strong id="ledger-loss">₹0</strong><small>Recorded loss value</small></div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Add production record</h3><p class="sub" style="margin-bottom:16px">Enter one crop and time period at a time. Profit = sale revenue − production cost.</p>
+        <div class="row"><div class="field"><label for="record-period">Record period</label><select id="record-period"><option>Month</option><option>Week</option><option>Year</option></select></div><div class="field"><label for="record-date">Date / period start</label><input id="record-date" type="date"></div></div>
+        <div class="row"><div class="field"><label for="record-crop">Crop</label><input id="record-crop" placeholder="e.g. wheat"></div><div class="field"><label for="record-quantity">Harvest quantity (grams)</label><input id="record-quantity" type="number" min="0" step="1" placeholder="e.g. 250000"></div></div>
+        <div class="row"><div class="field"><label for="record-cost">Total production cost (₹)</label><input id="record-cost" type="number" min="0" step="0.01" placeholder="Seeds, labour, water, etc."></div><div class="field"><label for="record-revenue">Sales revenue (₹)</label><input id="record-revenue" type="number" min="0" step="0.01" placeholder="Money earned from sales"></div></div>
+        <div class="field"><label for="record-next-cost">Estimated input cost for next cycle (₹)</label><input id="record-next-cost" type="number" min="0" step="0.01" placeholder="Seeds, fertilizer, fuel, labour"></div>
+        <div class="row"><div class="field"><label for="record-disease">Disease / problem (if any)</label><select id="record-disease"><option>None reported</option><option>Rust / leaf spots</option><option>Blast / blight</option><option>Powdery mildew</option><option>Root rot / waterlogging</option><option>Aphids / sucking pests</option><option>Caterpillars / leaf chewing</option><option>Yellowing / nutrient imbalance</option><option>Drought / heat stress</option><option>Possible viral disease</option><option>Other / not identified</option></select></div><div class="field"><label for="record-times">Times seen</label><input id="record-times" type="number" min="0" step="1" value="0"></div></div>
+        <div class="row"><div class="field"><label for="record-loss-quantity">Estimated crop loss (grams)</label><input id="record-loss-quantity" type="number" min="0" step="1" value="0"></div><div class="field"><label for="record-loss-cost">Estimated financial loss (₹)</label><input id="record-loss-cost" type="number" min="0" step="0.01" value="0"></div></div>
+        <div class="field"><label for="record-notes">Notes / treatment used / area affected</label><input id="record-notes" placeholder="Add notes for future reference"></div>
+        <button class="btn btn-dark" style="margin-top:4px" onclick="saveFarmRecord()">Save farm record</button>
+        <div id="record-result" class="result"></div>
+        <div class="notice">Use consistent units. This ledger does not replace tax, insurance or official farm records.</div>
+      </div>
+      <div class="panel">
+        <h3>Saved records</h3>
+        <div class="field"><label for="record-filter">Filter by period type</label><select id="record-filter"><option value="all">All periods</option><option>Month</option><option>Week</option><option>Year</option></select></div>
+        <div id="record-list" class="alert-list"><p class="sub">No records saved yet.</p></div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="exportFarmRecords()">Export CSV</button>
+          <button class="btn btn-outline btn-sm" onclick="clearFarmRecords()">Clear records</button>
+        </div>
+        <div class="notice" style="margin-top:12px">Records are stored locally in this browser. Export a backup if needed.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>AgriAlly · Technology rooted in the soil, growing with the farmer.<br>Prototype concept · InnoTech26 · KIET University · Demo outputs are not agronomic measurements.</footer>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $=id=>document.getElementById(id);let lastSoilAdvice='',lastDiag='';
+function toast(s){const t=$('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
+const PAGE_TITLES={dashboard:'Dashboard',soil:'Soil & Water',diagnosis:'Crop Doctor',alerts:'Smart Alerts',schemes:'Govt. Schemes',community:'Community Map',drone:'Drone Field Scan',market:'Farm Market',watersupply:'Water Sources',sprinkler:'AI Sprinkler',materials:'Find Materials',labor:'Farm Labour',records:'Farm Records',diseasehistory:'Disease History'};
+function go(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('page-'+name).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));$('crumb').textContent=PAGE_TITLES[name];$('page-title-main').textContent=PAGE_TITLES[name];window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
+function preview(inputId,imgId){$(inputId).addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;if(!f.type.startsWith('image/')){toast('Please choose an image file.');return}const img=$(imgId);img.src=URL.createObjectURL(f);img.style.display='block';img.parentElement.querySelectorAll('div.dz-icon,strong,span:not(.tag)').forEach(el=>el.style.display='none')})}
+preview('soil-file','soil-preview');preview('crop-file','crop-preview');
+function areaSqM(){const a=Math.max(0,Number($('area').value)||0),u=$('area-unit').value;return a*(u==='acre'?4046.856:u==='hectare'?10000:2500)}
+function calcWater(){const m2=areaSqM(),mm=Math.max(0,Number($('target-mm').value)||0),eff=Number($('efficiency').value)||.75;const litres=m2*mm/Math.max(.1,eff);$('calc-litres').textContent=Math.round(litres).toLocaleString('en-IN')+' L';$('calc-detail').textContent=`For ${$('area').value||0} ${$('area-unit').value}(s), ${mm} mm depth and ${Math.round(eff*100)}% application efficiency.`;$('dash-area').textContent=($('area').value||0)+' '+($('area-unit').value==='hectare'?'ha':$('area-unit').value);$('dash-water').textContent=Math.round(litres).toLocaleString('en-IN')+' L'}
+['area','area-unit','target-mm','efficiency'].forEach(id=>$(id).addEventListener('change',calcWater));calcWater();
+function analyseSoil(){const f=$('soil-file').files[0],sensor=$('sensor').value.trim();if(!f&&!sensor){toast('Upload a soil photo or enter a real sensor reading first.');return}let m,method;if(sensor!==''&&Number(sensor)>=0&&Number(sensor)<=100){m=Number(sensor);method='Based on the sensor value you entered.'}else{const img=$('soil-preview');let sample=48;if(img.src){try{const c=document.createElement('canvas'),ctx=c.getContext('2d',{willReadFrequently:true});c.width=32;c.height=32;ctx.drawImage(img,0,0,32,32);const d=ctx.getImageData(0,0,32,32).data;let r=0,g=0,b=0,n=0;for(let i=0;i<d.length;i+=16){r+=d[i];g+=d[i+1];b+=d[i+2];n++}r/=n;g/=n;b/=n;sample=Math.max(15,Math.min(75,70-(r+g+b)/10+(b-r)/8))}catch(e){sample=48}}m=Math.round(sample);method='Rough colour-based demo guess only. Confirm with a calibrated sensor.'}
+const type=$('soil-type').value,threshold=type==='sandy'?35:type==='clay'?45:40;let status=m<threshold?'Likely dry — check root-zone soil before irrigating.':m>70?'Looks wet — avoid extra watering until checked.':'Moderate reading — check crop stage and root-zone condition.';let depth=m<threshold?12:m>70?0:5;const eff=Number($('efficiency').value)||.75;const litres=areaSqM()*depth/Math.max(.1,eff);$('moisture-value').textContent=m+'%';$('moisture-bar').style.width=m+'%';$('moisture-status').textContent=status;$('moisture-method').textContent=method;$('water-litres').textContent=Math.round(litres).toLocaleString('en-IN')+' L';$('water-mm').textContent=depth+' mm';$('water-advice').textContent=depth===0?'Do not add water based on this result; re-check the root zone and local conditions.':`Illustrative scenario: ${depth} mm before efficiency adjustment. Confirm crop-specific needs and recent rainfall before watering.`;$('soil-result').classList.add('show');lastSoilAdvice=`Your soil result is ${m} percent. ${status} Estimated illustrative water scenario ${Math.round(litres)} litres. Please verify with a soil sensor and local crop advice.`;$('dash-moisture').textContent=m+'%';$('dash-moisture-note').textContent=sensor!==''?'Entered sensor reading':'Illustrative photo estimate';$('dash-status').textContent=m<threshold?'Check moisture':m>70?'Wet reading':'Monitor';$('dash-water').textContent=Math.round(litres).toLocaleString('en-IN')+' L';toast('Soil report ready — check its limitations.')}
+function speak(text){if(!('speechSynthesis'in window)){toast('Voice playback not supported by this browser.');return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const lang=$('language').value;u.lang=lang==='hi'?'hi-IN':lang==='ta'?'ta-IN':lang==='te'?'te-IN':lang==='bho'?'hi-IN':'en-IN';speechSynthesis.speak(u)}
+function speakSoil(){speak(lastSoilAdvice||'Please upload a soil photo or enter a sensor reading first.')}
+function speakAdvice(){const lang=$('language').value;const msg=lang==='hi'?'नमस्ते किसान भाई और बहनों। पानी देने से पहले जड़ के पास की मिट्टी की नमी जाँचें। बारिश का पूर्वानुमान देखें और फसल के अनुसार सिंचाई करें।':lang==='bho'?'पानी देवे से पहिले जड़ के लगे माटी के नमी जांचीं। बरखा के अनुमान देखीं।':'Before watering, check moisture near the roots, consider expected rainfall, and irrigate according to your crop and local agricultural advice.';speak(msg)}
+function diagnose(){if(!$('crop-file').files[0]){toast('Please upload a crop photo to continue.');return}const s=$('symptom').value,c=$('diag-crop').value;const data={spots:['Leaf spots can be caused by fungal or bacterial disease, but also by spray injury or other stress.','Photograph several affected leaves, note whether spots are spreading, and ask a local KVK/agriculture officer to confirm before treatment.'],yellow:['Yellowing may be linked to nutrient imbalance, waterlogging, drought, pests or disease.','Check soil moisture and drainage, inspect new and old leaves, and consider a soil test before applying fertilizer.'],wilting:['Wilting can result from heat, root damage, water stress or disease.','Check root-zone moisture and drainage first; if soil is wet and plants still wilt, seek expert diagnosis promptly.'],holes:['Holes or leaf damage may be caused by chewing insects, caterpillars or other pests.','Inspect both sides of leaves and look for insects or eggs. Use only locally approved controls after identification.'],stunted:['Slow growth can have many causes including poor soil fertility, root stress, pests or unsuitable conditions.','Review planting date, irrigation, drainage and nutrient history; a soil test or field visit can narrow the cause.']};const d=data[s];$('diag-title').textContent='Possible causes · '+c;$('diag-text').textContent=d[0];$('diag-next').textContent='Suggested next step: '+d[1];$('diag-result').classList.add('show');lastDiag=d[0]+' '+d[1];toast('Guided symptom check ready — not an AI diagnosis.')}
+function speakDiagnosis(){speak(lastDiag||'Upload a crop photo and run a guided check first.')}
+function checkRisk(){const t=Number($('temp').value),h=Number($('humidity').value),rain=$('rain').value;let msgs=[];if(h>=80&&t>=20&&t<=32)msgs.push('Warm, humid conditions can favour some crop diseases. Inspect leaves and follow local advisories.');if(rain==='yes')msgs.push('Rain expected: reconsider irrigation and avoid spraying unless product label allows it.');if(t>=35)msgs.push('High temperature: monitor crop water stress and irrigate at suitable times if needed.');if(!msgs.length)msgs.push('No simple risk flag from these inputs. Continue regular crop scouting and check a trusted local forecast.');$('risk-text').textContent=msgs.join(' ');$('risk-result').classList.add('show')}
+function findSchemes(){const need=$('need').value;const all={income:['PM-KISAN','Check landholding eligibility and current beneficiary status on the official portal.'],insurance:['PM Fasal Bima Yojana','Check notified crops, enrolment windows and state-specific notices.'],water:['PMKSY / state irrigation support','Ask the district agriculture or irrigation office about current component and subsidy rules.'],soil:['Soil Health Card programme','Ask your local agriculture office or soil testing lab about sampling and card access.'],credit:['Kisan Credit Card (KCC)','Ask a participating bank or official agriculture office about current eligibility and documents.']};const d=all[need];$('scheme-results').innerHTML='<h4>Suggested starting point</h4><p><b>'+d[0]+'</b></p><p>'+d[1]+'</p><p>Profile: '+$('farmer-type').selectedOptions[0].text+' · State: '+$('state').value+'</p><p>Confirm all current requirements on official government sources.</p>';$('scheme-results').classList.add('show')}
+let reports=2;function reportIssue(){reports++;const crop=$('report-crop').value,issue=$('report-issue').value;const item=document.createElement('div');item.className='alert';item.innerHTML='<div class="alert-icon red">📍</div><div><b></b><small>Local demo report · just added</small><p>Unverified report. In a real system, this would need consent and review.</p></div>';item.querySelector('b').textContent=crop+' · '+issue;$('reports').prepend(item);$('report-result').innerHTML='<h4>Report added to this demo</h4><p>Your sample report is visible in this browser page only.</p>';$('report-result').classList.add('show');toast('Demo report added locally.')}
+const cropGuideData={rust:{title:'Rust / leaf spots',signs:'Orange, brown or dark spots/pustules on leaves; damaged leaves may dry early.',care:'Remove badly affected debris where appropriate, avoid working in wet foliage, use resistant varieties and ask a local expert to identify the disease before treatment.'},blast:{title:'Blast / blight',signs:'Leaf lesions, expanding brown patches, neck or stem damage, or rapidly spreading tissue death depending on crop and pathogen.',care:'Confirm the crop-specific disease first. Improve drainage and spacing, avoid excessive nitrogen, use clean seed and follow local extension advice.'},mildew:{title:'Powdery mildew',signs:'White powder-like patches on leaves or stems; leaves can curl or yellow.',care:'Improve airflow where feasible, avoid excessive nitrogen and monitor spread. Ask an officer whether a crop-appropriate registered treatment is needed.'},rot:{title:'Root rot / waterlogging',signs:'Poor growth, yellowing, wilting despite wet soil, dark or soft roots, or plant collapse.',care:'Check drainage and root-zone moisture. Avoid overwatering, clean tools, and use well-drained areas. Root diseases have different causes so obtain diagnosis before treatment.'},aphids:{title:'Aphids / sucking pests',signs:'Small clustered insects on new growth or leaf undersides, curled leaves, sticky honeydew.',care:'Inspect several plants and check whether beneficial insects are present. Use physical removal or locally recommended IPM methods. Use insecticides only when correctly identified and necessary.'},caterpillars:{title:'Caterpillars / leaf chewing',signs:'Irregular holes, chewed edges, frass or caterpillars on leaves and stems.',care:'Inspect plants at different times of day and identify the pest. Ask local extension services about crop-specific integrated pest management.'},yellow:{title:'Yellowing / nutrient imbalance',signs:'Yellow leaves may be caused by nitrogen or other nutrient issues, water stress, waterlogging, root injury, pests or disease.',care:'Check whether old or new leaves are affected, inspect drainage and moisture, and use a soil test before adding fertilizer.'},drought:{title:'Drought / heat stress',signs:'Leaf rolling, drooping, dry edges, flower drop or uneven growth during hot or dry conditions.',care:'Check root-zone moisture and water availability. Irrigate according to crop stage and local recommendations. Mulch where suitable.'},virus:{title:'Possible viral disease',signs:'Mosaic patterns, mottled colour, unusual leaf shape, stunting or distorted new growth.',care:'There is often no direct cure. Confirm diagnosis with an expert, control identified insect vectors using integrated methods, clean tools and follow local advice.'}};
+function showCropGuide(){const crop=$('guide-crop').selectedOptions[0].text,key=$('guide-problem').value,d=cropGuideData[key];$('guide-title').textContent=crop+' · '+d.title;$('guide-signs').textContent='Common signs: '+d.signs;$('guide-care').textContent='Possible care steps: '+d.care;$('guide-result').classList.add('show')}
+let workerEntries=[];
+function addWorker(){const name=$('worker-name').value.trim(),loc=$('worker-location').value.trim(),skill=$('worker-skill').value,wage=Number($('worker-wage').value),phone=$('worker-phone').value.trim(),avail=$('worker-availability').value;if(!name||!loc||$('worker-wage').value===''||wage<0){toast('Enter a name, location and valid wage.');return}const digits=phone.replace(/[^0-9+]/g,'');workerEntries.unshift({name,loc,skill,wage,phone:digits,avail});renderWorkers();$('worker-result').textContent='Worker listing published in this browser demo only.';$('worker-result').classList.add('show');toast('Worker listing added locally.')}
+function renderWorkers(){const box=$('worker-list');box.innerHTML='';const loc=($('labor-search-location').value||'').trim().toLowerCase(),skill=$('labor-search-skill').value;const filtered=workerEntries.filter(w=>(!loc||w.loc.toLowerCase().includes(loc))&&(skill==='all'||w.skill===skill));if(!filtered.length){const p=document.createElement('p');p.className='sub';p.textContent='No matching worker listings. Try another location or work type.';box.append(p);return}filtered.forEach(w=>{const el=document.createElement('div');el.className='alert';const ic=document.createElement('div');ic.className='alert-icon';ic.textContent='🧑‍🌾';const body=document.createElement('div');const b=document.createElement('b');b.textContent=w.name+' · '+w.skill;const sm=document.createElement('small');sm.textContent=w.loc+' · '+w.avail;const p=document.createElement('p');p.textContent='Expected wage: ₹'+w.wage.toLocaleString('en-IN')+'/day';body.append(b,sm,p);if(w.phone){const a=document.createElement('a');a.href='tel:'+w.phone;a.textContent='Contact worker';a.style.cssText='display:inline-block;margin-top:6px;font-weight:700;font-size:12px';body.append(a)}el.append(ic,body);box.append(el)})}
+function filterWorkers(){renderWorkers()}
+function analyseDrone(){const files=$('drone-files').files;if(!files||!files.length){toast('Upload at least one drone field image first.');return}const crop=$('drone-crop').value,area=$('drone-area').value,stage=$('drone-stage').value;$('drone-report').textContent=`Field assessment prepared for ${area} acre(s) of ${crop} at ${stage} stage. ${files.length} image(s) received. A connected AI service would analyse crop coverage, flag stress zones and suggest areas for ground inspection and soil testing. Submit this to your agriculture officer for review.`;$('drone-result').classList.add('show');toast('Assessment request prepared locally.')}
+function searchWaterSources(){$('water-source-results').classList.add('show');toast('Searching example directory...')}
+function createSprinklerCommand(){const m=Number($('spr-moisture').value),target=Number($('spr-target').value),area=Number($('spr-area').value),rain=$('spr-rain').value,crop=$('spr-crop').value;if(rain==='yes'){$('sprinkler-command').textContent='Rain expected: no irrigation recommended. Re-check moisture after rainfall.';$('sprinkler-result').classList.add('show');return}const deficit=Math.max(0,target-m);const mm=Math.round(deficit*0.3);const litres=Math.round(4046.856*area*mm/0.75);$('sprinkler-command').textContent=`Crop: ${crop} · Area: ${area} acre(s) · Current moisture: ${m}% → Target: ${target}% · Suggested depth: ${mm} mm · Estimated water: ${litres.toLocaleString('en-IN')} L at 75% efficiency. Confirm with sensor reading and local conditions before activating.`;$('sprinkler-result').classList.add('show');toast('Command generated. Review carefully before use.')}
+function copySprinklerCommand(){navigator.clipboard?.writeText($('sprinkler-command').textContent).then(()=>toast('Command copied.')).catch(()=>toast('Could not copy in this browser.'))}
+function confirmSprinklerCommand(){toast('Demo only — no physical device connected. Always confirm before activating equipment.')}
+function findMaterials(){const type=$('material-type').value,name=$('material-name').value.trim(),loc=$('material-location').value.trim();$('material-results').innerHTML=`<h4>Suggested checklist</h4><p>Search for <b>${name||type}</b> in <b>${loc||'your area'}</b> at your local agri shop, KVK, or online verified supplier. Check quality marks, expiry and official registration before buying any crop-protection product.</p>`;$('material-results').classList.add('show')}
+function addListing(){const action=$('listing-action').value,product=$('listing-product').value.trim(),price=$('listing-price').value,unit=$('listing-unit').value,area=$('listing-area').value.trim();if(!product||!price){toast('Enter a product name and price.');return}$('listing-result').innerHTML=`<h4>Listing added</h4><p>${action}: <b>${product}</b> at ₹${Number(price).toLocaleString('en-IN')} ${unit}${area?' · '+area:''}. Visible in this browser demo only.</p>`;$('listing-result').classList.add('show');toast('Demo listing added locally.')}
+const FARM_KEY='agriallyFarmRecordsV1';
+function getFarmRecords(){try{return JSON.parse(localStorage.getItem(FARM_KEY)||'[]')}catch(e){return[]}}
+function money(n){return'₹'+(Number(n)||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
+function saveFarmRecord(){const crop=$('record-crop').value.trim(),date=$('record-date').value,quantity=Number($('record-quantity').value),cost=Number($('record-cost').value),revenue=Number($('record-revenue').value),nextCost=Number($('record-next-cost').value||0),disease=$('record-disease').value,times=Number($('record-times').value||0),lossQty=Number($('record-loss-quantity').value||0),lossCost=Number($('record-loss-cost').value||0);if(!crop||!date||$('record-quantity').value===''||$('record-cost').value===''||$('record-revenue').value===''||[quantity,cost,revenue,nextCost,times,lossQty,lossCost].some(v=>!Number.isFinite(v)||v<0)){toast('Enter crop, date, quantity and valid non-negative money/count values.');return}const item={id:Date.now(),period:$('record-period').value,date,crop,quantity,cost,revenue,profit:revenue-cost,nextCost,disease,times,lossQty,lossCost,notes:$('record-notes').value.trim()};const records=getFarmRecords();records.unshift(item);try{localStorage.setItem(FARM_KEY,JSON.stringify(records))}catch(e){toast('Could not save. Browser storage may be unavailable.');return}renderFarmRecords();$('record-result').textContent='Saved. Estimated profit/loss: '+money(item.profit)+'. Next cycle input budget: '+money(item.nextCost)+'.';$('record-result').classList.add('show');toast('Farm record saved.')}
+function renderFarmRecords(){const records=getFarmRecords(),filter=$('record-filter')?.value||'all',shown=records.filter(r=>filter==='all'||r.period===filter);$('ledger-harvest').textContent=records.reduce((s,r)=>s+r.quantity,0).toLocaleString('en-IN')+' g';$('ledger-cost').textContent=money(records.reduce((s,r)=>s+r.cost,0));$('ledger-profit').textContent=money(records.reduce((s,r)=>s+r.profit,0));$('ledger-loss').textContent=money(records.reduce((s,r)=>s+r.lossCost,0));const box=$('record-list');box.innerHTML='';if(!shown.length){const p=document.createElement('p');p.className='sub';p.textContent='No records for this filter yet.';box.append(p);return}shown.forEach(r=>{const el=document.createElement('div');el.className='alert';const ic=document.createElement('div');ic.className='alert-icon green';ic.textContent='🌾';const body=document.createElement('div');const b=document.createElement('b');b.textContent=r.crop+' · '+r.date+' ('+r.period+')';const sm=document.createElement('small');sm.textContent='Harvest '+Number(r.quantity).toLocaleString('en-IN')+' g · Production '+money(r.cost)+' · Sales '+money(r.revenue)+' · Profit/loss '+money(r.profit);const p=document.createElement('p');p.textContent='Next cycle: '+money(r.nextCost)+' · Problem: '+r.disease+' · Times: '+r.times+' · Loss: '+Number(r.lossQty).toLocaleString('en-IN')+' g / '+money(r.lossCost)+(r.notes?' · Notes: '+r.notes:'');body.append(b,sm,p);el.append(ic,body);box.append(el)})}
+function exportFarmRecords(){const records=getFarmRecords();if(!records.length){toast('No farm records to export.');return}const cols=['period','date','crop','quantity_grams','production_cost_INR','sales_revenue_INR','profit_loss_INR','next_cycle_cost_INR','disease_or_problem','times_seen','loss_grams','loss_cost_INR','notes'];const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const csv=[cols.join(','),...records.map(r=>[r.period,r.date,r.crop,r.quantity,r.cost,r.revenue,r.profit,r.nextCost,r.disease,r.times,r.lossQty,r.lossCost,r.notes].map(quote).join(','))].join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));const a=document.createElement('a');a.href=url;a.download='agrially-farm-records.csv';a.click();URL.revokeObjectURL(url);toast('CSV export prepared.')}
+function clearFarmRecords(){if(!confirm('Delete all farm records saved in this browser? Export a backup first if needed.'))return;localStorage.removeItem(FARM_KEY);renderFarmRecords();toast('Local farm records cleared.')}
+$('record-filter').addEventListener('change',renderFarmRecords);renderFarmRecords();
+const DISEASE_HISTORY_KEY='agriallyDiseaseHistoryV1';
+function getDiseaseHistory(){try{return JSON.parse(localStorage.getItem(DISEASE_HISTORY_KEY)||'[]')}catch(e){return[]}}
+function saveDiseaseIncident(){const date=$('dh-date').value,crop=$('dh-crop').value.trim(),problem=$('dh-problem').value,cause=$('dh-cause').value,times=Number($('dh-times').value),status=$('dh-status').value,area=Number($('dh-area').value||0),loss=Number($('dh-loss').value||0),treatment=$('dh-treatment').value.trim(),outcome=$('dh-outcome').value.trim();if(!date||!crop||!Number.isInteger(times)||times<1||!Number.isFinite(area)||area<0||!Number.isFinite(loss)||loss<0){toast('Enter date, crop, a whole-number occurrence count and valid non-negative loss values.');return}const item={id:Date.now(),date,crop,problem,cause,times,status,area,loss,treatment,outcome};const all=getDiseaseHistory();all.unshift(item);try{localStorage.setItem(DISEASE_HISTORY_KEY,JSON.stringify(all))}catch(e){toast('Could not save history; browser storage may be unavailable.');return}renderDiseaseHistory();$('dh-result').textContent='Incident saved. '+problem+' has '+times+' occurrence(s) recorded for '+crop+'.';$('dh-result').classList.add('show');toast('Disease incident saved locally.')}
+function getHistoryBasedReminders(){const all=getDiseaseHistory(),groups={};all.forEach(x=>{if(!x.crop||!x.problem||!x.date)return;const d=new Date(x.date+'T12:00:00');if(Number.isNaN(d.getTime())||d>new Date())return;const key=x.crop.trim().toLowerCase()+'||'+x.problem;if(!groups[key])groups[key]={crop:x.crop.trim(),problem:x.problem,dates:[]};groups[key].dates.push(x.date)});const today=new Date();today.setHours(0,0,0,0);const out=[];Object.values(groups).forEach(g=>{const dates=[...new Set(g.dates)].sort();if(dates.length<2)return;const gaps=[];for(let i=1;i<dates.length;i++){const a=new Date(dates[i-1]+'T12:00:00'),b=new Date(dates[i]+'T12:00:00');const days=Math.round((b-a)/86400000);if(days>0)gaps.push(days)}if(!gaps.length)return;const avg=Math.max(1,Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length)),last=new Date(dates[dates.length-1]+'T12:00:00'),next=new Date(last);next.setDate(next.getDate()+avg);const daysUntil=Math.ceil((new Date(next.getFullYear(),next.getMonth(),next.getDate())-today)/86400000);out.push({...g,nextDate:next,avgGap:avg,daysUntil,occurrences:dates.length})});return out.sort((a,b)=>a.daysUntil-b.daysUntil)}
+function renderDiseaseReminders(){const box=$('dh-reminders');if(!box)return;box.innerHTML='';const items=getHistoryBasedReminders();if(!items.length){const p=document.createElement('p');p.className='sub';p.textContent='Not enough history yet. Record the same crop and disease/pest on at least two different dates.';box.append(p);return}items.forEach(r=>{const el=document.createElement('div');el.className='alert';const ic=document.createElement('div');ic.className='alert-icon '+(r.daysUntil<=7?'red':'green');ic.textContent=r.daysUntil<=7?'🔔':'🌱';const body=document.createElement('div');const b=document.createElement('b');b.textContent=r.crop+' · '+r.problem;const sm=document.createElement('small');sm.textContent='Estimated next recurrence: '+r.nextDate.toLocaleDateString('en-IN')+' · Based on '+r.occurrences+' distinct recorded dates';const p=document.createElement('p');p.textContent=(r.daysUntil<0?'Estimated date passed '+Math.abs(r.daysUntil)+' day(s) ago.':r.daysUntil===0?'Estimated recurrence date is today.':r.daysUntil<=7?'Upcoming in about '+r.daysUntil+' day(s).':'About '+r.daysUntil+' days away.')+' Past reports averaged '+r.avgGap+' days apart. Inspect the crop; this is a reminder, not a diagnosis.';body.append(b,sm,p);el.append(ic,body);box.append(el)})}
+async function enableDiseaseNotifications(){if(!('Notification'in window)){toast('This browser does not support notifications.');return}try{const permission=await Notification.requestPermission();if(permission!=='granted'){toast('Notifications were not enabled.');return}const due=getHistoryBasedReminders().filter(r=>r.daysUntil<=7);if(!due.length){toast('Notifications enabled. No reminders due within 7 days.');return}due.forEach(r=>new Notification('AgriAlly crop-history reminder',{body:r.crop+' · '+r.problem+': estimated recurrence '+(r.daysUntil<0?'was '+Math.abs(r.daysUntil)+' day(s) ago':r.daysUntil===0?'is today':'in '+r.daysUntil+' day(s)')+'. Please inspect your crop.'}));toast('History-based reminder notification(s) sent.')}catch(e){toast('Could not enable notifications in this browser.')}}
+function renderDiseaseHistory(){const all=getDiseaseHistory(),cropFilter=($('dh-filter-crop')?.value||'').trim().toLowerCase(),problemFilter=$('dh-filter-problem')?.value||'all',shown=all.filter(x=>(!cropFilter||x.crop.toLowerCase().includes(cropFilter))&&(problemFilter==='all'||x.problem===problemFilter));$('dh-total').textContent=all.length.toLocaleString('en-IN');$('dh-affected').textContent=all.reduce((n,x)=>n+x.times,0).toLocaleString('en-IN');$('dh-destroyed').textContent=all.filter(x=>x.status==='Crop/plant destroyed').reduce((n,x)=>n+x.times,0).toLocaleString('en-IN');$('dh-loss').textContent=all.reduce((n,x)=>n+x.loss,0).toLocaleString('en-IN')+' g';const box=$('dh-summary');box.innerHTML='';if(!shown.length){const p=document.createElement('p');p.className='sub';p.textContent='No matching history. Add an incident or change the filters.';box.append(p);renderDiseaseReminders();return}const grouped={};shown.forEach(x=>{const key=x.crop+'||'+x.problem+'||'+x.cause;if(!grouped[key])grouped[key]={crop:x.crop,problem:x.problem,cause:x.cause,times:0,destroyed:0,loss:0,incidents:0};const g=grouped[key];g.times+=x.times;g.incidents++;g.loss+=x.loss;if(x.status==='Crop/plant destroyed')g.destroyed+=x.times});Object.values(grouped).sort((a,b)=>b.times-a.times).forEach(g=>{const el=document.createElement('div');el.className='alert';const ic=document.createElement('div');ic.className='alert-icon red';ic.textContent='🦠';const body=document.createElement('div');const b=document.createElement('b');b.textContent=g.crop+' · '+g.problem;const sm=document.createElement('small');sm.textContent=g.cause+' · '+g.incidents+' incident record(s)';const p=document.createElement('p');p.textContent='Occurrences recorded: '+g.times+' · Destroyed events: '+g.destroyed+' · Estimated loss: '+g.loss.toLocaleString('en-IN')+' g';body.append(b,sm,p);const matching=shown.filter(x=>x.crop===g.crop&&x.problem===g.problem&&x.cause===g.cause).sort((a,b)=>b.date.localeCompare(a.date));matching.forEach(x=>{const detail=document.createElement('p');detail.style.cssText='font-size:12px;color:#526457;margin-top:7px';detail.textContent=x.date+' · '+x.status+(x.area?' · Area '+x.area+' acres':'')+(x.treatment?' · Treatment: '+x.treatment:' · Treatment: not entered')+(x.outcome?' · Outcome: '+x.outcome:'');body.append(detail)});el.append(ic,body);box.append(el)});renderDiseaseReminders();}
+function exportDiseaseHistory(){const all=getDiseaseHistory();if(!all.length){toast('No disease history to export.');return}const cols=['date','crop','disease_or_factor','suspected_cause_type','occurrences','crop_impact_status','area_affected_acres','estimated_loss_grams','treatment_or_action','outcome_followup'];const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const csv=[cols.join(','),...all.map(x=>[x.date,x.crop,x.problem,x.cause,x.times,x.status,x.area,x.loss,x.treatment,x.outcome].map(quote).join(','))].join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));const a=document.createElement('a');a.href=url;a.download='agrially-disease-history.csv';a.click();URL.revokeObjectURL(url);toast('Disease history CSV prepared.')}
+function clearDiseaseHistory(){if(!confirm('Delete all disease history saved in this browser? Export a backup first if needed.'))return;localStorage.removeItem(DISEASE_HISTORY_KEY);renderDiseaseHistory();toast('Disease history cleared.')}
+$('dh-filter-crop').addEventListener('input',renderDiseaseHistory);$('dh-filter-problem').addEventListener('change',renderDiseaseHistory);renderDiseaseHistory();
+$('language').addEventListener('change',()=>toast('Language selected for voice playback.'));
+</script>
+</body>
+</html>
